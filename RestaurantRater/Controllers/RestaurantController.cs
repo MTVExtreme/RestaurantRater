@@ -1,6 +1,7 @@
 ﻿using RestaurantRater.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -68,6 +69,34 @@ namespace RestaurantRater.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        //GET: Edit
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Restaurant restaurant = db.Restaurants.Find(id);
+
+            if (restaurant == null)
+            {
+                return HttpNotFound();
+            }
+            return View(restaurant);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "RestaurantID, Name, Address, Rating")] Restaurant restaurant)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(restaurant).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(restaurant);
         }
     }
 }
